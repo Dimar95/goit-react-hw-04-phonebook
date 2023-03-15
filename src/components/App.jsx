@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { nanoid } from 'nanoid';
 import AddContact from './AddContact/AddContact';
 import ContactsList from './ContactsList/ContactsList';
@@ -6,6 +6,7 @@ import ContactsFilter from './ContactsFilter/ContactsFilter';
 import { AppStyled, Container, Head, ContactsStyled } from './App.styled';
 
 const App = () => {
+  const isFirstRender = useRef(true);
   const [filter, setFilter] = useState('');
   const [contacts, setContacts] = useState([
     { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
@@ -21,27 +22,16 @@ const App = () => {
       setContacts(localStorageContacts);
     }
   }, []);
+
   useEffect(() => {
-    localStorage.setItem(
-      'localStorageContacts',
-      JSON.stringify(this.state.contacts)
-    );
-  }, []);
-  // const componentDidMount = () => {
-  //   if (localStorage.getItem('localStorageContacts')) {
-  //     this.setState(() => ({
-  //       contacts: JSON.parse(localStorage.getItem('localStorageContacts')),
-  //     }));
-  //   }
-  // }
-  // const componentDidUpdate(prevProps, prevState) {
-  //   if (this.state.contacts !== prevState.contacts) {
-  //     localStorage.setItem(
-  //       'localStorageContacts',
-  //       JSON.stringify(this.state.contacts)
-  //     );
-  //   }
-  // }
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    localStorage.setItem('localStorageContacts', JSON.stringify(contacts));
+  }, [contacts]);
+
   const onAddContact = ({ name, number }) => {
     if (contacts.find(obj => obj.name.toLowerCase() === name.toLowerCase())) {
       alert(`${name} is already in contacts.`);
